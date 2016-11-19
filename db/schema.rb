@@ -10,9 +10,40 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 0) do
+ActiveRecord::Schema.define(version: 20161119184237) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
+  create_table "reports", force: :cascade do |t|
+    t.string   "name"
+    t.string   "pet_type"
+    t.string   "breed"
+    t.string   "age"
+    t.string   "color"
+    t.string   "sex"
+    t.string   "photo"
+    t.string   "last_seen_date"
+    t.string   "last_seen_address"
+    t.float    "latitude"
+    t.float    "longitude"
+    t.text     "note"
+    t.string   "report_type"
+    t.integer  "user_id"
+    t.datetime "created_at",        null: false
+    t.datetime "updated_at",        null: false
+    t.index ["user_id"], name: "index_reports_on_user_id", using: :btree
+  end
+
+  create_table "users", force: :cascade do |t|
+    t.string   "first_name"
+    t.string   "last_name"
+    t.string   "email"
+    t.string   "password_digest"
+    t.datetime "created_at",      null: false
+    t.datetime "updated_at",      null: false
+    t.index ["email"], name: "index_users_on_email", unique: true, using: :btree
+  end
+
+  add_foreign_key "reports", "users"
 end
