@@ -6,6 +6,7 @@
 #   movies = Movie.create([{ name: 'Star Wars' }, { name: 'Lord of the Rings' }])
 #   Character.create(name: 'Luke', movie: movies.first)
 
+<<<<<<< Updated upstream
 # validates :name, presence: true
 # validates :pet_type, presence: true
 # validates :last_seen_date, presence: true
@@ -27,3 +28,8 @@
 end
 
 puts Cowsay.say('Generated 100 reports','random')
+=======
+10.times do
+  
+end
+>>>>>>> Stashed changes
