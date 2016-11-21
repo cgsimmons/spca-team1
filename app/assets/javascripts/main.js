@@ -61,10 +61,10 @@ var renderUserInfo = function(){
 
 var signoutFunc = function(){
   console.log('signout');
-  $.ajax({
-    url: 'http://localhost:3000/sessions',
-    type: 'delete'
-  });
+  // $.ajax({
+  //   url: 'http://localhost:3000/sessions',
+  //   type: 'delete'
+  // });
 }
 
 var notificationFunc = function(){
@@ -125,8 +125,7 @@ var getMessage = function(){
   $.get('http://localhost:3000/messengers/'+bufferedData, function(data){
   info = data;
   bufferedData = info.messenger;
-})
-
+  })
   console.log('get:'+bufferedData);
   console.log('show message');
   //before running ajax, bufferedData stored the message id
@@ -171,10 +170,12 @@ var renderLists = function(reports,template,list){
   var reportTemplate = $(template).html();
   var reportList = $(list);
   Mustache.parse(reportTemplate);
-  var reportHTML = reports
+  if(reports && reports.length){
+    var reportHTML = reports
     .map(function (report) {
       return Mustache.render(reportTemplate, report);
     }).join('');
+  }
   reportList.html(reportHTML);
 }
 
@@ -210,29 +211,36 @@ var renderPreviewFound = function(){
 
 var postReport = function(){
   //use ajax to pass report info to rails for save
-  data =[];
+  data = {};
   data.report=report4;
   data.report.report_type = lostOrFound;
   //
-  $.post('http://localhost:3000/reports',data, function(data){
-    bufferedData = data.report.id
-  });
   //use ajax to get report id from using report details
   //or use ajax to get user.report.last?
 
   //before running ajax, bufferedData stored a report detail
-  bufferedData = 1;
+  $.post('http://localhost:3000/reports',data, function(data){
+    bufferedData = data.report.id
+  });
   //after running ajax, bufferedData will store a report id
-
+  console.log('pass to db');
   //javascript for putting a pin on map
 }
 var addReport = function(){
+  var list;
   //use ajax to get alist of my lost report
-  reports = [report1,report2];
-  renderLists(reports,'#report-summary','#list-lost');
+  $.get('http://localhost:3000/reports/user/lost',function(data){
+    list=data.reports
+  });
+  debugger
+  // reports = [report1,report2];
+  renderLists(list,'#report-summary','#list-lost');
   //use ajax to get a list of my found report
-  reports = [report1,report2];
-  renderLists(reports,'#report-summary','#list-found');
+  $.get('http://localhost:3000/reports/user/found',function(data){
+    list=data.reports
+  });
+  // reports = [report1,report2];
+  renderLists(list,'#report-summary','#list-found');
 }
 
 var getLinkedReport = function(){
@@ -247,13 +255,12 @@ var renderFilterReports = function(reports){
 }
 
 var addMessage = function(){
-  var messages;
+  // var messages;
   //use ajax to get a list of my message-summary
   $.get('http://localhost:3000/messengers', function(data){
-    bufferedData = data;
+    bufferedData = data.messenger;
   });
   //messages = [message1,message2];
-  console.log(bufferedData[0]);
   renderLists(bufferedData,'#message-summary','#list-message');
 }
 
@@ -394,7 +401,7 @@ var report4 =   {
   latitude: 1231243.2132,
   longitude: 123454.32,
   note: '12345',
-  report_type: '12345'
+  report_type: 'Lost'
 }
 
 var message_test = {
