@@ -35,22 +35,20 @@ var showReport = function(id,bln){
   //bln determin lost of found, true for found, false for lost
   //currentPage
   //use ajax to get report using report id
-  $.get('http://localhost:3000/reports/1', function(data){
-  info = data
-  bufferedData = info.report
+  $.get('http://localhost:3000/reports/'+id, function(data){
+    bufferedData = info.report
+    if(bln){
+      to = '#showReportFound';
+      tmp = '#showReportFoundData';
+      target = "#reportShow";
+    } else{
+      to = '#showReportLost';
+      tmp = '#showReportLostData';
+      target = "#reportShow";
+    }
+    hideObject(currentPage);
+    showObject(to);
   })
-
-  if(bln){
-    to = '#showReportFound';
-    tmp = '#showReportFoundData';
-    target = "#reportShow";
-  } else{
-    to = '#showReportLost';
-    tmp = '#showReportLostData';
-    target = "#reportShow";
-  }
-  hideObject(currentPage);
-  showObject(to);
 }
 var renderUserInfo = function(){
   //initialize user info from ajax
@@ -61,10 +59,10 @@ var renderUserInfo = function(){
 
 var signoutFunc = function(){
   console.log('signout');
-  // $.ajax({
-  //   url: 'http://localhost:3000/sessions',
-  //   type: 'delete'
-  // });
+  $.ajax({
+    url: 'http://localhost:3000/sessions',
+    type: 'delete'
+  });
 }
 
 var notificationFunc = function(){
@@ -83,23 +81,24 @@ var newLinkedFoundReport = function(){
 }
 
 var getReportLost = function(){
-  $.get('http://localhost:3000/reports/1', function(data){
-  info = data;
-  bufferedData = data;
+  $.get('http://localhost:3000/reports/'+bufferedData, function(data){
+    info = data;
+    bufferedData = data;
+    console.log('lost:'+bufferedData);
+    console.log('get lost report');
+    //before running ajax, bufferedData stored the report id
+    //use ajax to update bufferedData, report.find(bufferedData)
+
+    //javascript for putting a pin on map
+    renderMustache("#reportShow",'#showReportLostData');
   })
 
-  console.log('lost:'+bufferedData);
-  console.log('get lost report');
-  //before running ajax, bufferedData stored the report id
-  //use ajax to update bufferedData, report.find(bufferedData)
-  bufferedData = report1;
 
-  //javascript for putting a pin on map
-  renderMustache("#reportShow",'#showReportLostData');
 }
 
 var getReportFound = function(){
-  $.get('http://localhost:3000/reports/1', function(data){
+
+  $.get('http://localhost:3000/reports/'+bufferedData, function(data){
   info = data;
   bufferedData = data;
   })
@@ -107,15 +106,16 @@ var getReportFound = function(){
   console.log('get found report');
   //before running ajax, bufferedData stored the report id
   //use ajax to update bufferedData, report.find(bufferedData)
-  bufferedData = report1;
 
   //javascript for putting a pin on map
   renderMustache("#reportShow",'#showReportFoundData');
 }
 var sendMessage = function(){
+  debugger
   var reportID = bufferedData;
-  bufferedData.messenger.body = messageBody.val();
-  bufferedData.report_id = report_id;
+  bufferedData = {messenger:{},report_id:''};
+  bufferedData.messenger.body = $("#messageBody").val();
+  bufferedData.report_id = reportID;
   //ajax post to db
   $.post('http://localhost:3000/messengers',bufferedData, function(data){bufferedData = data});
   hideObject(currentPage);
@@ -227,24 +227,28 @@ var postReport = function(){
   //javascript for putting a pin on map
 }
 var addReport = function(){
-  var list;
+  var reportlist;
   //use ajax to get alist of my lost report
   $.get('http://localhost:3000/reports/user/lost',function(data){
-    list=data.reports
+    // reportlist=;
+    renderLists(data.reports,'#report-summary','#list-lost');
+    // debugger
   });
-  debugger
+
   // reports = [report1,report2];
-  renderLists(list,'#report-summary','#list-lost');
+
   //use ajax to get a list of my found report
+
   $.get('http://localhost:3000/reports/user/found',function(data){
-    list=data.reports
+    // reportlist=data.reports;
+    renderLists(data.reports,'#report-summary','#list-found');
   });
   // reports = [report1,report2];
-  renderLists(list,'#report-summary','#list-found');
+
 }
 
 var getLinkedReport = function(){
-  data.case_id = bufferedData.id
+  data.case_id = bufferedData.id;
   //use ajax to get linked report with same case id
   $.get('http://localhost:3000/reports/case/linked/',data, function(data){reports = data.reports});
 
@@ -258,10 +262,11 @@ var addMessage = function(){
   // var messages;
   //use ajax to get a list of my message-summary
   $.get('http://localhost:3000/messengers', function(data){
-    bufferedData = data.messenger;
+    // bufferedData = data.messenger;
+    renderLists(data.messenger,'#message-summary','#list-message');
   });
   //messages = [message1,message2];
-  renderLists(bufferedData,'#message-summary','#list-message');
+
 }
 
 var setControllerButton = function(){
@@ -282,7 +287,7 @@ var setControllerButton = function(){
     $('#messageIMG')
 
     //before changing, bufferedData stored the report object
-    bufferedData = bufferedData['id'];
+    bufferedData = bufferedData.report.id;
     //after changing, bufferedData holds the report id
     console.log('redirect to message with case id = '+bufferedData);
 
@@ -330,7 +335,6 @@ var setAction = function(){
 }
 
 var report1 = {
-  'id' : 1,
   "pet_type":'dog',
   'breed' : 'breed1',
   'name' : 'name',
@@ -344,7 +348,6 @@ var report1 = {
 }
 
 var report2 = {
-  'id' : 2,
   "pet_type":'dog2',
   'name' : 'name2',
   'breed' : 'breed2',
@@ -358,7 +361,6 @@ var report2 = {
 }
 
 var report3 = {
-  'id' : 3,
   "pet_type":'dog2',
   'name' : 'name2',
   'breed' : 'breed2',
